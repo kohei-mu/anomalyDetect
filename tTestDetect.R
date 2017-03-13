@@ -1,4 +1,4 @@
-x <- read.csv("C:/Users/kohei-mu/Downloads/indices_I101_1d_2016.csv", header = F)[,2]
+x <- read.csv("indices_I101_1d_2016.csv", header = F)[,2]
 
 #function to calculate p-score and class
 tTestScore <- function(data,span, v1, v2){

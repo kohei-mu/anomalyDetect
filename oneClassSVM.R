@@ -1,5 +1,5 @@
 library(kernlab)
-x <- read.csv("C:/Users/kohei-mu/Downloads/indices_I101_1d_2016.csv", header = F)[,2]
+x <- read.csv("indices_I101_1d_2016.csv", header = F)[,2]
 
 #function to learn and predict by one-class-SVM and get its class
 getOneClass <- function(sigma,nu, train, test){
