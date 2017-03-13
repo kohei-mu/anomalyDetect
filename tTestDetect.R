@@ -1,4 +1,7 @@
-func <- function(data,span, v1, v2){
+x <- read.csv("C:/Users/kohei-mu/Downloads/indices_I101_1d_2016.csv", header = F)[,2]
+
+#function to calculate p-score and class
+tTestScore <- function(data,span, v1, v2){
   term <- seq(0, length(data)-span*2, by=span)
   result <- NULL
   tmp <- NULL
@@ -22,20 +25,26 @@ func <- function(data,span, v1, v2){
   return(result)
 }
 
+#objective function for optimization
 obj <- function (param) {
-  trg_level <- 96
-  func_out <- func(data=o[,2], span = param[3], v1 = param[1], v2 = param[2])
+  #define anomaly ratio
+  trg_level <- 90
+  func_out <- tTestScore(data=x, span = param[3], v1 = param[1], v2 = param[2])
   trg <- 1 - trg_level/100
   a.ratio <- length(which(func_out$class==2)) / length(func_out$class)
+  #return residual
   resi <- abs(trg - a.ratio)
   return(resi)
 }
-ret  <-optim(c(1e-100, 1e-1000, 300),
-             lower=c(1e-100, 1e-1000, 200), upper=c(0.1,0.1,500),
+
+#parameter optimization
+ret  <-optim(c(1e-100, 1e-1000, 100),
+             lower=c(1e-100, 1e-1000, 10), upper=c(0.1,0.1,200),
              obj,control = list(maxit = 10000),
              method = "L-BFGS-B")
 
-result <- func(o[,2], ret$par[3], ret$par[1],ret$par[2])
+#plot
+result <- tTestScore(x, ret$par[3], ret$par[1],ret$par[2])
 plot(as.numeric(result[,1]), type="l",xlab = "time", ylab = "value")
 points(which(result[,2]==2),cex=1,as.numeric(result[,1][which(result[,2]==2)]),col=2)
 print(length(which(result$class==2))/length(result$class))

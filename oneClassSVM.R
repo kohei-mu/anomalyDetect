@@ -1,6 +1,8 @@
-data <- as.numeric(o[,1])
+library(kernlab)
+x <- read.csv("C:/Users/kohei-mu/Downloads/indices_I101_1d_2016.csv", header = F)[,2]
 
-func <- function(sigma,nu, train, test){
+#function to learn and predict by one-class-SVM and get its class
+getOneClass <- function(sigma,nu, train, test){
   train_ <- data.frame(train, class=1)
   model <- ksvm(x=class~.,
                 data=train_,
@@ -18,22 +20,26 @@ func <- function(sigma,nu, train, test){
   return(x.result)
 }
 
+#objective function for optimization
 obj <- function(param){
+  #define anomaly ratio
   trg_level <- 99.9
   trg <- 1 - trg_level/100
-  func_out <- func(sigma=param[1], nu=param[2], train=data, test=data)
+  func_out <- getOneClass(sigma=param[1], nu=param[2], train=x, test=x)
   a.ratio <- length(which(func_out$cluster==2)) / length(func_out$cluster)
+  #return residual
   resi <- abs(trg - a.ratio)
   return(resi)
 }
 
+#parameter optimization
 ret  <-optim(c(0.5, 0.01),
              lower=c(0.1, 0.0005), upper=c(0.9,0.1),
              obj,control = list(maxit = 500),
              method = "L-BFGS-B")
 
-result <- func(ret$par[1],ret$par[2],data,data)
+#plot
+result <- getOneClass(ret$par[1],ret$par[2],x,x)
 plot(result[,1], type="l", xlab="time", ylab="value")
 points(which(result[,2]==2),cex=1, result[,1][which(result[,2]==2)],col=2)
 print(length(which(result$cluster==2))/length(result$cluster))
-
