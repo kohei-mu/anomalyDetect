@@ -1,5 +1,6 @@
 x <- read.csv("indices_I101_1d_2016.csv", header = F)[,2]
 
+#function to sigma range and class
 sigmaCalculate <- function(term, n, input) {
   mat <- matrix(input, nrow=term)
   ret <- NULL
@@ -41,10 +42,29 @@ sigmaCalculate <- function(term, n, input) {
   return(result)
 }
 
-ret <- sigmaCalculate(49,1,x)
-plot(ret$value,type="l",ylab = "value")
-points(which(ret$class==2), ret$value[which(ret$class==2)],col=2)
+#objective function for optimization
+obj <- function (param) {
+  #define anomaly ratio
+  trg_level <- 95
+  func_out <- sigmaCalculate(49,param,x)
+  trg <- 1 - trg_level/100
+  a.ratio <- length(which(func_out$class==2)) / length(func_out$class)
+  #return residual
+  resi <- abs(trg - a.ratio)
+  return(resi)
+}
+
+#parameter optimization
+ret  <-optim(optim(0.5, obj,control = list(maxit=100), method = "SANN")$par,
+             lower=1, upper=4,
+             obj,control = list(maxit = 100000),
+             method = "L-BFGS-B")
+
+#plot
+result <- sigmaCalculate(49,ret$par,x)
+plot(result$value,type="l",ylab = "value")
+points(which(result$class==2), result$value[which(result$class==2)],col=2)
 par(new=T)
-plot(ret$right,type="l", col=4,ylim=c(min(ret$value), max(ret$value)),ylab = "")
+plot(result$right,type="l", col=4,ylim=c(min(result$value), max(result$value)),ylab = "")
 par(new=T)
-plot(ret$left,type="l", col=4,ylim=c(min(ret$value), max(ret$value)), ylab = "")
+plot(result$left,type="l", col=4,ylim=c(min(result$value), max(result$value)), ylab = "")
