@@ -14,6 +14,7 @@ import statsmodels.tsa.stattools as stt
 from skopt import gp_minimize
 from skopt.plots import plot_convergence
 import seaborn as sns
+import math
 
 #input data
 df = pd.read_csv("indices_I101.csv",header=None)[1]
@@ -27,10 +28,11 @@ def scoreCalculate(r,smooth):
     cf = changefinder.ChangeFinder(r=r, order=lag, smooth=smooth)
     ret = []
     for i in tmp:
-        score = cf.update(i)
+        score = math.exp(cf.update(i))
         ret.append(score)
     return ret
-
+    
+    
 #function to optimize
 def func(params):
     r,smooth = params
@@ -42,7 +44,7 @@ dimensions  = [(0.1, 0.5),
 ]     
 
 #minimize variance of change score
-res_gp = gp_minimize(func, dimensions, n_calls=150, random_state=0,n_random_starts=20)
+res_gp = gp_minimize(func, dimensions, n_calls=10, random_state=0,n_random_starts=10)
 print(res_gp.x)
 
 #change score with best param
