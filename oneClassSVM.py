@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from skopt import gp_minimize
 from sklearn import svm
+from skopt.plots import plot_convergence
 
 
 df = pd.read_csv("indices_I101.csv",header=None)[1]
@@ -32,7 +33,7 @@ def func(params):
     return resi
 
 #parameter bounds
-dimensions  = [(0.001, 0.005),   
+dimensions  = [(0.001, 0.001),   
           (0.01,0.5)
 ]     
 
@@ -54,4 +55,29 @@ yIndex=df[xIndex]
 plt.plot(xIndex, yIndex, 'o',color="r")
 plt.show()
 
+plot_convergence(res_gp)
 
+resX = pd.DataFrame(res_gp.x_iters)
+resFuncVals = pd.DataFrame(res_gp.func_vals)
+resConcat = pd.concat([resX, resFuncVals], axis=1)
+
+
+#______________________________________________________________
+#get variables by random
+
+import random
+nu =  [random.uniform(0.01, 0.5) for x in range(0,100)]
+gamma = [random.uniform(0.005, 0.005) for x in range(0,100)]
+params = [[nu[x], gamma[x]] for x in range(0,100)]
+
+def f(params):
+    nu, gamma = params
+    clf = svm.OneClassSVM(nu=nu,kernel="rbf",gamma=gamma)
+    clf.fit(tmp)    
+    ans = clf.predict(tmp)
+    anomaly_ratio = float(len(np.where(ans==-1)[0])) / len(ans)
+    return anomaly_ratio
+
+ratios = [f(i) for i in params]
+result = [[params[i], ratios[i]] for i in range(0,100)]   
+resultSorted = sorted(result, key=lambda x: x[0][0])
