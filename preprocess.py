@@ -17,7 +17,6 @@ def make_data(freq,periods):
     return df
 #df= make_data("3T",50)
 
-
 def make_anomaly(periods, num, direction):
     start = np.random.randint(periods)
     end = start + num
