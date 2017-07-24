@@ -13,9 +13,16 @@ from datetime import datetime
 def make_data(freq,periods):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     idx=pd.date_range(now,freq=freq,periods=periods)
-    df = pd.DataFrame({"val":np.random.randn(periods)},index=idx).cumsum()
-    return df
-#df= make_data("3T",50)
+
+    x = np.linspace(0, 100, num=periods)
+    np.random.seed(1234)
+    pi2 = 2.*np.pi
+    value = 1.0*np.sin(0.1*pi2*x) + 1.0*np.cos(1.*pi2*x) + 0.5*np.random.randn(x.size)
+    
+    df = pd.DataFrame({"val":value},index=idx).cumsum()
+    return df￼
+#df= make_data("5T",288)
+#plot_func(df)
 
 def make_anomaly(periods, num, direction):
     start = np.random.randint(periods)
@@ -50,6 +57,9 @@ def missing_value(df, how):
     return df
 #df = missing_value(df,"interpolate")
 
+def plot_func(df):
+    df.plot()
+
 
 start = np.random.randint(30)
 end = start + 10
@@ -60,4 +70,5 @@ if direction == "pos":
     
 elif direction == "neg":
         
+
 
