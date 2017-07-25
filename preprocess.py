@@ -9,35 +9,40 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-
+def plot_func(df):
+    df.plot()
+    
 def make_data(freq,periods):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     idx=pd.date_range(now,freq=freq,periods=periods)
-
     x = np.linspace(0, 100, num=periods)
     np.random.seed(1234)
     pi2 = 2.*np.pi
     value = 1.0*np.sin(0.1*pi2*x) + 1.0*np.cos(1.*pi2*x) + 0.5*np.random.randn(x.size)
     
-    df = pd.DataFrame({"val":value},index=idx).cumsum()
-    return df￼
-#df= make_data("5T",288)
-#plot_func(df)
+    df=pd.DataFrame({"val":value},index=idx)
+    return df
+    
+df= make_data("5T",288)
+plot_func(df)
 
-def make_anomaly(periods, num, direction):
+def make_anomaly(df, periods, num, direction):
     start = np.random.randint(periods)
     end = start + num
     if direction == "pos":
-        
+        df.iloc[start:end] = df.max()*10
     elif direction == "neg":
-        
-
+        df.iloc[start:end] = df.min()/10
+    return df
+df = make_anomaly(df, 288, 10, "pos")
+plot_func(df)
+    
 def resample_time(df, freq, how="mean"):
     if how == "last":
         df = df.resample(freq).last()
     elif how == "sum":
         df = df.resample(freq).sum()
-    else:
+    else:#mean
         df = df.resample(freq).mean()
         
     return df
@@ -56,9 +61,6 @@ def missing_value(df, how):
         #ffill : forward
     return df
 #df = missing_value(df,"interpolate")
-
-def plot_func(df):
-    df.plot()
 
 
 start = np.random.randint(30)
