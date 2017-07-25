@@ -29,12 +29,16 @@ plot_func(df)
 def make_anomaly(df, periods, num, direction):
     start = np.random.randint(periods)
     end = start + num
+    print df.iloc[start], df.iloc[end]
     if direction == "pos":
-        df.iloc[start:end] = df.max()*10
+        df["val"].iloc[start:end] = float(df.max()) * 10
     elif direction == "neg":
-        df.iloc[start:end] = df.min()/10
+        if float(df.min()) < 0:
+            df["val"].iloc[start:end] = float(df.min()) * 10
+        else:
+            df["val"].iloc[start:end] = float(df.min()) / 10
     return df
-df = make_anomaly(df, 288, 10, "pos")
+df = make_anomaly(df, 288, 20, "neg")
 plot_func(df)
     
 def resample_time(df, freq, how="mean"):
