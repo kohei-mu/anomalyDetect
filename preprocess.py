@@ -7,6 +7,7 @@ Created on Fri Jul 21 16:11:58 2017
 @author: muramatsu
 """
 
+import sys
 import argparse
 import numpy as np
 import pandas as pd
@@ -17,19 +18,17 @@ def parse_command_line():
 	parser = argparse.ArgumentParser(description="help messages")
 	group1 = parser.add_argument_group('Main options')
 	group2 = parser.add_argument_group('additional options')
+    
+	group1.add_argument("-freq", dest="freq", default="5T", type=str, help="time frequency of data")
+	group1.add_argument("-periods", dest="prd", default=288, type=int, help="periods of data(data points)")
+	group1.add_argument("-anomaNum", dest="amN", default=10, type=int, help="anomaly points")
+	group1.add_argument("-anomaDirect", dest="amD", choices=["pos","neg"], default="pos", type=str, help="anomaly direction")
+	group1.add_argument("-resFreq", dest="rsF", default="5T", type=str, help="resampling frequency")
 
-	group1.add_argument("-freq", dest="pvt_src", help="pivot-source phrase-table")
-	group1.add_argument("-anFreq", dest="pvt_tgt", help="pivot-target phrase-table")
-	group1.add_argument("-periods", dest="output", default="tmp_phrase-table", type=str, help="")
-	group1.add_argument("-anomalyNum", dest="merged_output", default="merged_phrase-table", type=str, help="")
-	group1.add_argument("-anomalyDirection", dest="norm_output", default="normalized_phrase-table", type=str, help="")
-	group1.add_argument("-resamleFreq", dest="lex_output", default="final_phrase-table", type=str, help="")
-	group1.add_argument("-tp", dest="tp", choices=[0, 1, 2, 3, 4, 5, 6], default=0, type=int, help="")
-
-	group2.add_argument("-resampleHow", dest="disfile", type=str, help=")")
-	group2.add_argument("-resampleHow", dest="tpnum", default=20, type=int, help="")
+	group2.add_argument("-resHow", dest="rsH", type=str, default="mean", help="how to resampling")
+	group2.add_argument("-missHow", dest="msH",type=str, default="interpolate", help="how to cover missing values")
+    
 	return parser.parse_args()
-
 
 
 def plot_func(df):
@@ -91,5 +90,11 @@ def missing_value(df, how="interpolate"):
 #df = missing_value(df,"interpolate")
 
 
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        sys.stderr.write("no command specified. use option -h for usage instructions\n")
+    else:
+        args = parse_command_line()
 
 
