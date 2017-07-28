@@ -7,7 +7,6 @@ Created on Fri Jul 21 16:11:58 2017
 @author: muramatsu
 """
 
-import sys
 import argparse
 import numpy as np
 import pandas as pd
@@ -42,9 +41,6 @@ def make_data(freq,periods):
     df=pd.DataFrame({"val":value},index=idx)
     return df
     
-#df= make_data("5T",288)
-#plot_func(df)
-
 def make_anomaly(df, periods, num, direction):
     start = np.random.randint(periods)
     end = start + num
@@ -85,4 +81,21 @@ def missing_value(df, how="interpolate"):
         #ffill : forward
     return df
 #df = missing_value(df,"interpolate")
+
+
+
+def autocorr(df):
+    lags = range(len(df)//2) 
+    corrs = [df.autocorr(lag) for lag in lags]
+    return lags, corrs
+
+def plot_autocorr(df):
+    lags, corrs = autocorr(df.val)
+    plt.xlabel('lags')
+    plt.ylabel('autocorr val')
+    plt.bar(lags, corrs)
+
+def slide_window(df, num):
+    df.shift(num)
+    return df
 
