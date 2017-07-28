@@ -14,21 +14,18 @@ import pandas as pd
 from datetime import datetime
 
 
-def parse_command_line():
-	parser = argparse.ArgumentParser(description="help messages")
-	group1 = parser.add_argument_group('Main options')
-	group2 = parser.add_argument_group('additional options')
-    
-	group1.add_argument("-freq", dest="freq", default="5T", type=str, help="time frequency of data")
-	group1.add_argument("-periods", dest="prd", default=288, type=int, help="periods of data(data points)")
-	group1.add_argument("-anomaNum", dest="amN", default=10, type=int, help="anomaly points")
-	group1.add_argument("-anomaDirect", dest="amD", choices=["pos","neg"], default="pos", type=str, help="anomaly direction")
-	group1.add_argument("-resFreq", dest="rsF", default="5T", type=str, help="resampling frequency")
+parser = argparse.ArgumentParser(description="help messages")
+group1 = parser.add_argument_group('Main options')
+group2 = parser.add_argument_group('additional options')
+group1.add_argument("-freq", dest="freq", default="5T", type=str, help="time frequency of data")
+group1.add_argument("-periods", dest="prd", default=288, type=int, help="periods of data(data points)")
+group1.add_argument("-anomaNum", dest="amN", default=10, type=int, help="anomaly points")
+group1.add_argument("-anomaDirect", dest="amD", choices=["pos","neg"], default="pos", type=str, help="anomaly direction")
+group1.add_argument("-resFreq", dest="rsF", default="5T", type=str, help="resampling frequency")
 
-	group2.add_argument("-resHow", dest="rsH", type=str, default="mean", help="how to resampling")
-	group2.add_argument("-missHow", dest="msH",type=str, default="interpolate", help="how to cover missing values")
-    
-	return parser.parse_args()
+group2.add_argument("-resHow", dest="rsH", type=str, default="mean", help="how to resampling")
+group2.add_argument("-missHow", dest="msH",type=str, default="interpolate", help="how to cover missing values")  
+args=parser.parse_args()
 
 
 def plot_func(df):
@@ -88,13 +85,4 @@ def missing_value(df, how="interpolate"):
         #ffill : forward
     return df
 #df = missing_value(df,"interpolate")
-
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.stderr.write("no command specified. use option -h for usage instructions\n")
-    else:
-        args = parse_command_line()
-
 
