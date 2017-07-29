@@ -16,6 +16,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
+import statsmodels.tsa.stattools as stt
+
+
 parser = argparse.ArgumentParser(description="help messages")
 group1 = parser.add_argument_group('Main options')
 group2 = parser.add_argument_group('additional options')
@@ -34,9 +37,6 @@ group2.add_argument("-missHow", dest="msH",type=str, default="interpolate", help
 group2.add_argument("-input_header",dest="inH", type=int, default=0, choices=[0,-1], help="input header option")
 args=parser.parse_args()
 
-
-def plot_func(df):
-    df.plot()
     
 def make_data(freq,periods):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -126,11 +126,51 @@ def file_writer(df, out_name):
     df.to_csv(out_name)
 
 
-#def data_understand():
+def plot_fig(df, save=False):
+    if save==True:
+        sns.pairplot(df).savefig("pairplot.png")
+    else:
+        sns.pairplot(df)
+    #calculate acf, pcf
+    acf, pcf = calc_pacf(df)
     
+    for i in range(len(df.columns)):
+        #plot distribution
+        fig = plt.figure()
+        sns.distplot(df.iloc[:,i])
+        if save==True:fig.savefig("dist_plot"+str(i)+".png")
+
+        #plot series
+        fig = plt.figure()
+        df.iloc[:,i].plot()
+        if save==True:fig.savefig("series_plot"+str(i)+".png")
+
+        #plot acf
+        fig = plt.figure()
+        plt.bar(range(len(acf[i])), acf[i], width = 0.3)
+        if save==True:fig.savefig("acf_plot"+str(i)+".png")
+
+        #plot pcf
+        fig = plt.figure()
+        plt.bar(range(len(pcf[i])), pcf[i], width = 0.3)
+        if save==True:fig.savefig("pcf_plot"+str(i)+".png")
+
+
+def calc_pacf(df):
+    acfs = []
+    pcfs = []
+    for i in range(len(df.columns)):
+        acf = stt.acf(df.iloc[:,i])
+        acfs.append(acf)
+        
+        pcf = stt.pacf(df.iloc[:,i])
+        pcfs.append(pcf)
+    
+    return acfs, pcfs
+
+def data_understand(df):
+    print df.describe()
+
+
 
     
-df=make_data("5t",288)
-df.describe()
-sns.pairplot(df)
-
