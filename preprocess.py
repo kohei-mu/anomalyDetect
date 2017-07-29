@@ -38,7 +38,7 @@ group2.add_argument("-input_header",dest="inH", type=int, default=0, choices=[0,
 args=parser.parse_args()
 
     
-def make_data(freq,periods):
+def make_data(freq,periods, randW):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     idx=pd.date_range(now,freq=freq,periods=periods)
     x = np.linspace(0, 100, num=periods)
@@ -47,6 +47,8 @@ def make_data(freq,periods):
     value = 1.0*np.sin(0.1*pi2*x) + 1.0*np.cos(1.*pi2*x) + 0.5*np.random.randn(x.size)
     
     value2 = 2.0*np.sin(0.1*pi2*x) + 3.0*np.cos(1.*pi2*x) + 0.6*np.random.randn(x.size)
+    
+    
     
     df=pd.DataFrame({"val":value,"val2":value2},index=idx)
     return df
@@ -126,13 +128,17 @@ def file_writer(df, out_name):
     df.to_csv(out_name)
 
 
-def plot_fig(df, save=False):
-    if save==True:
-        sns.pairplot(df).savefig("pairplot.png")
-    else:
-        sns.pairplot(df)
+def plot_fig(df, save=False):    
+    fig=sns.PairGrid(df, diag_sharey=False)
+    fig.map_lower(sns.kdeplot, cmap="Blues_d")
+    fig.map_upper(plt.scatter)
+    fig.map_diag(sns.distplot)
+    if save==True:fig.savefig("pairplot.png")
+    
+        
     #calculate acf, pcf
     acf, pcf = calc_pacf(df)
+    ma = calc_ma(df)
     
     for i in range(len(df.columns)):
         #plot distribution
@@ -144,6 +150,11 @@ def plot_fig(df, save=False):
         fig = plt.figure()
         df.iloc[:,i].plot()
         if save==True:fig.savefig("series_plot"+str(i)+".png")
+        
+        #plot moving average
+        fig = plt.figure()
+        ma[i].plot()
+        if save==True:fig.savefig("ma_plot"+str(i)+".png")
 
         #plot acf
         fig = plt.figure()
@@ -168,9 +179,15 @@ def calc_pacf(df):
     
     return acfs, pcfs
 
+def calc_ma(df):
+    mas = []
+    for i in range(len(df.columns)):
+        ma = pd.Series.rolling(df.iloc[:,i], window=5, center=True).mean()
+        mas.append(ma)
+    return mas
+
 def data_understand(df):
     print df.describe()
 
 
-
-    
+df=make_data("5t",288)
