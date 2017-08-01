@@ -134,7 +134,18 @@ def plot_fig(df, save=False):
     fig.map_upper(plt.scatter)
     fig.map_diag(sns.distplot)
     if save==True:fig.savefig("pairplot.png")
-    
+
+    #plot jointplot
+    if len(df.columns) == 2:
+        fig = plt.figure()
+        sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1], data=df);
+        if save == True: fig.savefig("joint_plot.png")
+
+    #plot kde joitplot
+    if len(df.columns) == 2:
+        fig = plt.figure()
+        sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df);
+        if save == True: fig.savefig("joint_kde_plot.png")
         
     #calculate acf, pcf
     acf, pcf = calc_pacf(df)
@@ -149,12 +160,10 @@ def plot_fig(df, save=False):
         #plot series
         fig = plt.figure()
         df.iloc[:,i].plot()
-        if save==True:fig.savefig("series_plot"+str(i)+".png")
-        
         #plot moving average
-        fig = plt.figure()
-        ma[i].plot()
-        if save==True:fig.savefig("ma_plot"+str(i)+".png")
+        ma[i].plot(c='r')
+        if save==True:fig.savefig("series_plot"+str(i)+".png")
+
 
         #plot acf
         fig = plt.figure()
@@ -182,7 +191,7 @@ def calc_pacf(df):
 def calc_ma(df):
     mas = []
     for i in range(len(df.columns)):
-        ma = pd.Series.rolling(df.iloc[:,i], window=5, center=True).mean()
+        ma = pd.Series.rolling(df.iloc[:,i], window=3, center=True).mean()
         mas.append(ma)
     return mas
 
