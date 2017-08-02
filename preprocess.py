@@ -14,8 +14,7 @@ from datetime import datetime
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-
+from scipy.fftpack import fft
 import statsmodels.tsa.stattools as stt
 
 
@@ -38,7 +37,7 @@ group2.add_argument("-input_header",dest="inH", type=int, default=0, choices=[0,
 args=parser.parse_args()
 
     
-def make_data(freq,periods, randW):
+def make_data(freq,periods):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     idx=pd.date_range(now,freq=freq,periods=periods)
     x = np.linspace(0, 100, num=periods)
@@ -47,8 +46,6 @@ def make_data(freq,periods, randW):
     value = 1.0*np.sin(0.1*pi2*x) + 1.0*np.cos(1.*pi2*x) + 0.5*np.random.randn(x.size)
     
     value2 = 2.0*np.sin(0.1*pi2*x) + 3.0*np.cos(1.*pi2*x) + 0.6*np.random.randn(x.size)
-    
-    
     
     df=pd.DataFrame({"val":value,"val2":value2},index=idx)
     return df
@@ -102,6 +99,7 @@ def missing_value(df, how="interpolate"):
     return df
 #df = missing_value(df,"interpolate")
 
+#get lags
 def slide_window(df, num):
     return df.shift(num)
 
@@ -161,7 +159,13 @@ def plot_fig(df, save=False):
         fig = plt.figure()
         plt.bar(range(len(pcf[i])), pcf[i], width = 0.3)
         if save==True:fig.savefig("pcf_plot"+str(i)+".png")
-
+        
+        #plot fft
+        fig = plt.figure()
+        f = calc_fft(df.iloc[:,i])
+        plt.plot(f[1], f[0])
+        if save==True:fig.savefig("fft_plot"+str(i)+".png")
+        
 
 def calc_pacf(df):
     acfs = []
@@ -186,4 +190,20 @@ def data_understand(df):
     print df.describe()
 
 
+
+def calc_fft(df):
+    # Number of sample points
+    N = len(df)
+    # sample spacing
+    T = 1.0 / N * 1.5
+   # x = np.linspace(0.0, N*T, N)
+    y = df
+    yf = 2.0/N * np.abs(fft(y)[0:N//2])
+    xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
+    return yf, xf
+
+
 df=make_data("5t",288)
+
+
+
