@@ -29,12 +29,12 @@ group1.add_argument("-anomaDirect", dest="amD", choices=["pos","neg"], default="
 group1.add_argument("-resFreq", dest="rsF", default="5T", type=str, help="resampling frequency")
 group1.add_argument("-in", dest="in", type=str, help="input csv")
 group1.add_argument("-out", dest="out", type=str, help="output csv")
-
-
+group1.add_argument("-save", dest="save", type=bool, default=False, choices=[True, False], help="save plots")
 
 group2.add_argument("-resHow", dest="rsH", type=str, default="mean", choices=["sum","mean","median","max","min","last","first"],help="how to resampling")
 group2.add_argument("-missHow", dest="msH",type=str, default="interpolate", help="how to cover missing values")  
 group2.add_argument("-input_header",dest="inH", type=int, default=0, choices=[0,-1], help="input header option")
+group2.add_argument("-crosstab",dest="cross", type=bool, default=False, choices=[True, False], help="calculate crosstab")
 args=parser.parse_args()
 
     
@@ -137,6 +137,9 @@ def plot_fig(df, save=False):
     acf, pcf = calc_pacf(df)
     ma = calc_ma(df)
     
+    #calcularw return
+    ret = calc_return(df)
+    
     for i in range(len(df.columns)):
         #plot distribution
         fig = plt.figure()
@@ -167,6 +170,19 @@ def plot_fig(df, save=False):
         plt.plot(f[1], f[0])
         if save==True:fig.savefig("fft_plot"+str(i)+".png")
         
+        #plot return value_i - value_i2
+        fig = plt.figure()
+        ret[i].plot()
+        if save==True:fig.savefig("return_plot"+str(i)+".png")
+        
+
+def calc_return(df):
+    rets = []
+    for i in  range(len(df.columns)):
+        ret = df.iloc[:,i].pct_change().dropna()
+        rets.append(ret)
+    
+    return rets
 
 def calc_pacf(df):
     acfs = []
@@ -193,8 +209,6 @@ def data_understand(df, cross=False, r="row", c="col"):
     if cross == True:
         crosstab = pd.pivot_table(rows=r, cols=c, aggfunc=[len])
         print crosstab
-
-
 
 def calc_fft(df):
     # Number of sample points
