@@ -15,6 +15,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.fftpack import fft
+from scipy.signal import blackman
 import statsmodels.tsa.stattools as stt
 
 
@@ -186,8 +187,12 @@ def calc_ma(df):
         mas.append(ma)
     return mas
 
-def data_understand(df):
+def data_understand(df, cross=False, r="row", c="col"):
     print df.describe()
+    
+    if cross == True:
+        crosstab = pd.pivot_table(rows=r, cols=c, aggfunc=[len])
+        print crosstab
 
 
 
@@ -197,8 +202,10 @@ def calc_fft(df):
     # sample spacing
     T = 1.0 / N * 1.5
    # x = np.linspace(0.0, N*T, N)
+   ##window function
+    w = blackman(N)
     y = df
-    yf = 2.0/N * np.abs(fft(y)[0:N//2])
+    yf = 2.0/N * np.abs(fft(y*w)[0:N//2])
     xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
     return yf, xf
 
