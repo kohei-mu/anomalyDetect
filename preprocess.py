@@ -35,6 +35,7 @@ group2.add_argument("-resHow", dest="rsH", type=str, default="mean", choices=["s
 group2.add_argument("-missHow", dest="msH",type=str, default="interpolate", help="how to cover missing values")  
 group2.add_argument("-input_header",dest="inH", type=int, default=0, choices=[0,-1], help="input header option")
 group2.add_argument("-crosstab",dest="cross", type=bool, default=False, choices=[True, False], help="calculate crosstab")
+group2.add_argument("-i_conv",dest="i_convert", type=bool, default=False, choices=[True, False], help="conert timestamp index(yyyy-mm-dd'T'hh:MM:DD+09:00)")
 args=parser.parse_args()
 
     
@@ -110,7 +111,8 @@ def file_reader(csv, header=0):
         df = missing_value(df)
     return df
     
-def file_writer(df, out_name):
+def file_writer(df, out_name, i_convert=False):
+    if i_convert:df = index_convert(df)
     df.to_csv(out_name,index_label=["TimeStamp"])
 
 def index_convert(df):
