@@ -111,7 +111,16 @@ def file_reader(csv, header=0):
     return df
     
 def file_writer(df, out_name):
-    df.to_csv(out_name)
+    df.to_csv(out_name,index_label=["TimeStamp"])
+
+def index_convert(df):
+    index = df.index
+    k=[]
+    for i in index:
+        j = "T".join(str(i).split(" ")) + "+09:00"
+        k.append(j)
+    df.index = k
+    return df
 
 
 def plot_fig(df, save=False):    
@@ -128,7 +137,6 @@ def plot_fig(df, save=False):
         if save == True: fig.savefig("joint_plot.png")
 
     #plot kde joitplot
-    if len(df.columns) == 2:
         fig = plt.figure()
         sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df);
         if save == True: fig.savefig("joint_kde_plot.png")
