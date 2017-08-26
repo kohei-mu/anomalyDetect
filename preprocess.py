@@ -39,30 +39,34 @@ group2.add_argument("-i_conv",dest="i_convert", type=bool, default=False, choice
 args=parser.parse_args()
 
     
-def make_data(freq,periods):
+def make_data(freq,periods, ncol=1):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     idx=pd.date_range(now,freq=freq,periods=periods)
     x = np.linspace(0, 100, num=periods)
-    np.random.seed(1234)
-    pi2 = 2.*np.pi
-    value = 1.0*np.sin(0.1*pi2*x) + 1.0*np.cos(1.*pi2*x) + 0.5*np.random.randn(x.size)
+    pi2 = 2.*np.pi    
+    valDic = {}
+    for i in range(ncol):
+        value = np.random.randint(10)*np.sin(0.1*pi2*x) +np.random.randint(10)*np.cos(1.*pi2*x) +  np.random.rand(1)*np.random.randn(x.size)
+        inx = "val" + str(i)
+        valDic[inx] = value    
+    df=pd.DataFrame(valDic,index=idx)
     
-    value2 = 2.0*np.sin(0.1*pi2*x) + 3.0*np.cos(1.*pi2*x) + 0.6*np.random.randn(x.size)
-    
-    df=pd.DataFrame({"val":value,"val2":value2},index=idx)
     return df
-    
-def make_anomaly(df, periods, num, direction):
+
+def make_anomaly(df, periods, num, direction, trg_col=[]):
     start = np.random.randint(periods)
     end = start + num
-    print df.iloc[start], df.iloc[end]
-    if direction == "pos":
-        df["val"].iloc[start:end] = float(df.max()) * 10
-    elif direction == "neg":
-        if float(df.min()) < 0:
-            df["val"].iloc[start:end] = float(df.min()) * 10
-        else:
-            df["val"].iloc[start:end] = float(df.min()) / 10
+    #print df.iloc[start], df.iloc[end]    
+
+    if trg_col == []:trg_col = df.columns
+    for i in trg_col:
+        if direction == "pos":
+            df[i].iloc[start:end] = float(df[i].max()) * 10
+        elif direction == "neg":
+            if float(df[i].min()) < 0:
+                df[i].iloc[start:end] = float(df[i].min()) * 10
+            else:
+                df[i].iloc[start:end] = float(df[i].min()) / 10
     return df
 #df = make_anomaly(df, 288, 20, "neg")
 #plot_func(df)
@@ -217,7 +221,7 @@ def data_understand(df, cross=False, r="row", c="col"):
     print df.describe()
     
     if cross == True:
-        crosstab = pd.pivot_table(rows=r, cols=c, aggfunc=[len])
+        crosstab = pd.pivot_table(df,values,index, columns,aggfunc=[np.sum])        
         print crosstab
 
 def calc_fft(df):
@@ -234,7 +238,6 @@ def calc_fft(df):
     return yf, xf
 
 
-df=make_data("5t",288)
-
-
-
+df=make_data("5t",288, 2)
+df = make_anomaly(df, 288, 3, "pos")
+plot_fig(df)
