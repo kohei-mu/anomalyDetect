@@ -131,21 +131,19 @@ def index_convert(df):
 
 def plot_fig(df, save=False):    
     fig=sns.PairGrid(df, diag_sharey=False)
+    plt.subplots_adjust(top=0.9)
+    fig.fig.suptitle("Distribution")
     fig.map_lower(sns.kdeplot, cmap="Blues_d")
     fig.map_upper(plt.scatter)
     fig.map_diag(sns.distplot)
     if save==True:fig.savefig("pairplot.png")
 
-    #plot jointplot
-    if len(df.columns) == 2:
-        fig = plt.figure()
-        sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1], data=df);
-        if save == True: fig.savefig("joint_plot.png")
-
     #plot kde joitplot
-        fig = plt.figure()
-        sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df);
-        if save == True: fig.savefig("joint_kde_plot.png")
+    fig = plt.figure()
+    g=sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df)
+    plt.subplots_adjust(top=0.9)
+    g.fig.suptitle("Kernel Distribution Estimation")
+    if save == True: fig.savefig("joint_kde_plot.png")
         
     #calculate acf, pcf
     acf, pcf = calc_pacf(df)
@@ -158,36 +156,42 @@ def plot_fig(df, save=False):
         #plot distribution
         fig = plt.figure()
         sns.distplot(df.iloc[:,i])
-        if save==True:fig.savefig("dist_plot"+str(i)+".png")
+        plt.title("Histgram - "+df.columns[i])
+        if save==True:fig.savefig("dist_plot_"+df.columns[i]+".png")
 
         #plot series
         fig = plt.figure()
         df.iloc[:,i].plot()
         #plot moving average
         ma[i].plot(c='r')
-        if save==True:fig.savefig("series_plot"+str(i)+".png")
+        plt.title("Row data & Moving average - "+df.columns[i])
+        if save==True:fig.savefig("series_plot_"+df.columns[i]+".png")
 
 
         #plot acf
         fig = plt.figure()
         plt.bar(range(len(acf[i])), acf[i], width = 0.3)
-        if save==True:fig.savefig("acf_plot"+str(i)+".png")
+        plt.title("Auto Correlation Function - "+df.columns[i])
+        if save==True:fig.savefig("acf_plot_"+df.columns[i]+".png")
 
         #plot pcf
         fig = plt.figure()
         plt.bar(range(len(pcf[i])), pcf[i], width = 0.3)
-        if save==True:fig.savefig("pcf_plot"+str(i)+".png")
+        plt.title("Partial Auto Correlation Function - "+df.columns[i])
+        if save==True:fig.savefig("pcf_plot_"+df.columns[i]+".png")
         
         #plot fft
         fig = plt.figure()
         f = calc_fft(df.iloc[:,i])
         plt.plot(f[1], f[0])
-        if save==True:fig.savefig("fft_plot"+str(i)+".png")
+        plt.title("Fast Fourier Transform - "+df.columns[i])
+        if save==True:fig.savefig("fft_plot_"+df.columns[i]+".png")
         
         #plot return value_i - value_i2
         fig = plt.figure()
         ret[i].plot()
-        if save==True:fig.savefig("return_plot"+str(i)+".png")
+        plt.title("Return - "+df.columns[i])
+        if save==True:fig.savefig("return_plot_"+df.columns[i]+".png")
         
 
 def calc_return(df):
@@ -240,4 +244,4 @@ def calc_fft(df):
 
 df=make_data("5t",288, 2)
 df = make_anomaly(df, 288, 3, "pos")
-plot_fig(df)
+plot_fig(df,"true")
