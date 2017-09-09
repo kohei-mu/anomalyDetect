@@ -8,10 +8,9 @@ Created on Mon Jun 05 21:33:29 2017
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from skopt import gp_minimize
 from sklearn import svm
+from skopt import gp_minimize
 from skopt.plots import plot_convergence
-
 
 df = pd.read_csv("indices_I101.csv",header=None)[1]
 tmp =  np.array(df).reshape(-1, 1)

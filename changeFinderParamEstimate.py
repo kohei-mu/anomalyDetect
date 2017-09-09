@@ -6,6 +6,7 @@ Created on Mon Mar  6 09:09:50 2017
 """
 
 # -*- coding: utf-
+# noinspection PyUnresolvedReferences
 import matplotlib.pyplot as plt
 import changefinder
 import numpy as np
@@ -21,6 +22,7 @@ df = pd.read_csv("indices_I101.csv",header=None)[1]
 tmp =  np.array(df)
 
 pcf = stt.pacf(tmp)
+# noinspection PyUnresolvedReferences
 lag = np.argsort(np.absolute(pcf))[::-1][1]
 
 #function to calculate change score

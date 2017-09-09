@@ -4,7 +4,7 @@
 """
 Created on Fri Jul 21 16:11:58 2017
 
-@author: muramatsu
+@author: kohei-mu
 """
 
 import argparse
