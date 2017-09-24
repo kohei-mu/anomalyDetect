@@ -10,6 +10,7 @@ from sklearn.datasets import load_iris
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import IsolationForest
+import time
 
 rng = np.random.RandomState(42)
 data = load_iris()
@@ -27,7 +28,7 @@ x_train, x_test, y_train, y_test = train_test_split( x, y, test_size=0.2, random
 #max_features : int or float, optional (default=1.0)
 #bootstrap : boolean, optional (default=False)
 
-for param in [0.001, 0.005, 0.1, 0.5]:
+for param in [0.001,  0.005, 0.1,  0.5]:
     clf = IsolationForest(max_features=1.0,
                           bootstrap=False,
                           contamination=param,
@@ -36,7 +37,7 @@ for param in [0.001, 0.005, 0.1, 0.5]:
                           random_state=None,
                           verbose=0)
 
-
+    start = time.time()
     tp_list=[]
     tn_list=[]
     for i in range(100):
@@ -54,8 +55,10 @@ for param in [0.001, 0.005, 0.1, 0.5]:
         k=sum([i==-1  for i in y_pred_outliers])    
         tn=float(k)/len(y_pred_outliers)
         tn_list.append(tn)
+    elapsed_time = time.time() - start
     
     print("test param : " + str(param))
     print("average tp : " + str(np.mean(tp_list)))
     print("average tn : " + str(np.mean(tn_list)))
+    print ("elapsed_time : {0}".format(elapsed_time) + "[sec]")
     print("\n")
