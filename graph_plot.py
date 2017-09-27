@@ -16,24 +16,25 @@ from scipy.fftpack import fft
 from scipy.signal import blackman
 import statsmodels.tsa.stattools as stt
 
-parser = argparse.ArgumentParser(description="help messages")
-group1 = parser.add_argument_group('Main options')
-group2 = parser.add_argument_group('additional options')
 
-group1.add_argument("-in", dest="in", type=str, help="input csv")
-group1.add_argument("-out", dest="out", type=str, help="output csv")
-group1.add_argument("-save", dest="save", type=bool, default=False, choices=[True, False], help="save plots")
+def parse_command_line():
+    parser = argparse.ArgumentParser(description="help messages")
+    group1 = parser.add_argument_group('Main options')
+    group2 = parser.add_argument_group('additional options')
+    
+    group1.add_argument("-in", dest="in_csv", type=str, help="input csv")
+    group1.add_argument("-out", dest="out_csv", type=str, help="output csv")
+    group1.add_argument("-save", dest="save", type=bool, default=False, choices=[True, False], help="save plots")
+    
+    group2.add_argument("-missHow", dest="msH",type=str, default="interpolate", help="how to cover missing values")  
+    group2.add_argument("-input_header",dest="inH", type=int, default=0, choices=[0,-1], help="input header option")
+    group2.add_argument("-crosstab",dest="cross", type=bool, default=False, choices=[True, False], help="calculate crosstab")
+    return parser.parse_args()
 
-group2.add_argument("-missHow", dest="msH",type=str, default="interpolate", help="how to cover missing values")  
-group2.add_argument("-input_header",dest="inH", type=int, default=0, choices=[0,-1], help="input header option")
-group2.add_argument("-crosstab",dest="cross", type=bool, default=False, choices=[True, False], help="calculate crosstab")
-group2.add_argument("-i_conv",dest="i_convert", type=bool, default=False, choices=[True, False], help="conert timestamp index(yyyy-mm-dd'T'hh:MM:DD+09:00)")
-args=parser.parse_args()
-
-
-def missing_value(df, how="interpolate"):
+def missing_value(df):
     #indexer=np.random.randint(4,size=30)==1
     #df.loc[indexer]=np.nan
+    how  = args.msH
     if how == "interpolate":
         df=df.interpolate()
     elif how == "drop":
@@ -44,33 +45,33 @@ def missing_value(df, how="interpolate"):
         #ffill : forward
     return df
 
-def file_reader(csv, header=0):
-    df=pd.read_csv(csv,header=header)
+def file_reader(csv):
+    df=pd.read_csv(csv,header=args.inH)
     if df.isnull().any().sum() > 0:
         df = missing_value(df)
     return df
 
-def plot_fig(df, save=False):    
+def plot_fig(df):    
     fig=sns.PairGrid(df, diag_sharey=False)
     plt.subplots_adjust(top=0.9)
     fig.fig.suptitle("Distribution")
     fig.map_lower(sns.kdeplot, cmap="Blues_d")
     fig.map_upper(plt.scatter)
     fig.map_diag(sns.distplot)
-    if save==True:fig.savefig("pairplot.png")
+    if args.save:fig.savefig("pairplot.png")
 
     #plot kde joitplot
     fig = plt.figure()
     g=sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df)
     plt.subplots_adjust(top=0.9)
     g.fig.suptitle("Kernel Distribution Estimation")
-    if save == True: fig.savefig("joint_kde_plot.png")
+    if args.save: fig.savefig("joint_kde_plot.png")
 
     #plot correlation matrix
     fig = plt.figure()
     fig.suptitle("Correlation Matrix")
     sns.heatmap(df.corr().as_matrix(), annot=True,cmap='Blues')
-    if save == True: fig.savefig("corr_matrix_plot.png")
+    if args.save: fig.savefig("corr_matrix_plot.png")
         
     #calculate acf, pcf
     acf, pcf = calc_pacf(df)
@@ -84,7 +85,7 @@ def plot_fig(df, save=False):
         fig = plt.figure()
         sns.distplot(df.iloc[:,i])
         plt.title("Histgram - "+df.columns[i])
-        if save==True:fig.savefig("dist_plot_"+df.columns[i]+".png")
+        if args.save:fig.savefig("dist_plot_"+df.columns[i]+".png")
 
         #plot series
         fig = plt.figure()
@@ -92,33 +93,33 @@ def plot_fig(df, save=False):
         #plot moving average
         ma[i].plot(c='r')
         plt.title("Row data & Moving average - "+df.columns[i])
-        if save==True:fig.savefig("series_plot_"+df.columns[i]+".png")
+        if args.save:fig.savefig("series_plot_"+df.columns[i]+".png")
 
 
         #plot acf
         fig = plt.figure()
         plt.bar(range(len(acf[i])), acf[i], width = 0.3)
         plt.title("Auto Correlation Function - "+df.columns[i])
-        if save==True:fig.savefig("acf_plot_"+df.columns[i]+".png")
+        if args.save:fig.savefig("acf_plot_"+df.columns[i]+".png")
 
         #plot pcf
         fig = plt.figure()
         plt.bar(range(len(pcf[i])), pcf[i], width = 0.3)
         plt.title("Partial Auto Correlation Function - "+df.columns[i])
-        if save==True:fig.savefig("pcf_plot_"+df.columns[i]+".png")
+        if args.save:fig.savefig("pcf_plot_"+df.columns[i]+".png")
         
         #plot fft
         fig = plt.figure()
         f = calc_fft(df.iloc[:,i])
         plt.plot(f[1], f[0])
         plt.title("Fast Fourier Transform - "+df.columns[i])
-        if save==True:fig.savefig("fft_plot_"+df.columns[i]+".png")
+        if args.save:fig.savefig("fft_plot_"+df.columns[i]+".png")
         
         #plot return value_i - value_i2
         fig = plt.figure()
         ret[i].plot()
         plt.title("Return - "+df.columns[i])
-        if save==True:fig.savefig("return_plot_"+df.columns[i]+".png")
+        if args.save:fig.savefig("return_plot_"+df.columns[i]+".png")
         
 
 def calc_return(df):
@@ -148,10 +149,10 @@ def calc_ma(df):
         mas.append(ma)
     return mas
 
-def data_understand(df, cross=False, r="row", c="col"):
+def data_understand(df, r="row", c="col"):
     print df.describe()
     
-    if cross == True:
+    if args.cross:
         crosstab = pd.pivot_table(df,values,index, columns,aggfunc=[np.sum])        
         print crosstab
 
@@ -169,9 +170,13 @@ def calc_fft(df):
     return yf, xf
 
 
-
-plot_fig(df)
-
+if __name__ == "__main__":
+    args = parse_command_line()
+    if args.in_csv:
+        df = file_reader(args.in_csv)
+    
+    plot_fig(df)
+    data_understand(df)
 
 
 
