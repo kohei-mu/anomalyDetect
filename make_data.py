@@ -17,6 +17,7 @@ def parse_command_line():
     
     group1.add_argument("-freq", dest="freq", default="5T", type=str, help="time frequency of data")
     group1.add_argument("-periods", dest="prd", default=288, type=int, help="periods of data(data points)")
+    group1.add_argument("-anom", dest="anom", type=bool,default=False, help="make anomaly flag")
     group1.add_argument("-anomaNum", dest="amN", default=10, type=int, help="anomaly points")
     group1.add_argument("-anomaDirect", dest="amD", choices=["pos","neg"], default="pos", type=str, help="anomaly direction")
     group1.add_argument("-in", dest="in_csv", type=str, help="input csv")
@@ -99,7 +100,15 @@ def index_convert(df):
 if __name__ == "__main__":
     args = parse_command_line()
     
+    if args.in_csv:
+        df = file_reader(args.in_csv)
+    
     df=make_data("5t",288, 5)
-    df = make_anomaly(df, 288, 3, "pos")
+    
+    if args.anom:    
+        df = make_anomaly(df, 288, 3, "pos")
 
+    if args.out_csv:
+        file_writer(df)
+    
 

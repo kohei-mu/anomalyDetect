@@ -84,9 +84,9 @@ if __name__ == "__main__":
     if args.in_csv:
         df = file_reader(args.in_csv)
     
-    df = resample_time(df)   
+    df_out = resample_time(df)   
     
     if args.out_csv:
-        file_writer(df)
+        file_writer(df_out)
     
     
