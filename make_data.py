@@ -17,9 +17,11 @@ def parse_command_line():
     
     group1.add_argument("-freq", dest="freq", default="5T", type=str, help="time frequency of data")
     group1.add_argument("-periods", dest="prd", default=288, type=int, help="periods of data(data points)")
+    group1.add_argument("-ncol", dest="ncol", default=1, type=int, help="number of columns")
     group1.add_argument("-anom", dest="anom", type=bool,default=False, help="make anomaly flag")
     group1.add_argument("-anomaNum", dest="amN", default=10, type=int, help="anomaly points")
     group1.add_argument("-anomaDirect", dest="amD", choices=["pos","neg"], default="pos", type=str, help="anomaly direction")
+    group1.add_argument("-trg_cols", dest="trg_cols", default="", type=str, help="anomaly target cols seperated " "##col1 col2 col3 ....")
     group1.add_argument("-in", dest="in_csv", type=str, help="input csv")
     group1.add_argument("-out", dest="out_csv", type=str, help="output csv")
     
@@ -29,13 +31,13 @@ def parse_command_line():
     return parser.parse_args()
 
 
-def make_data(freq,periods, ncol=1):
+def make_data(freq,periods):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    idx=pd.date_range(now,freq=freq,periods=periods)
-    x = np.linspace(0, 100, num=periods)
+    idx=pd.date_range(now,freq=args.freq,periods=args.prd)
+    x = np.linspace(0, 100, num=args.prd)
     pi2 = 2.*np.pi    
     valDic = {}
-    for i in range(ncol):
+    for i in range(args.ncol):
         value = np.random.randint(10)*np.sin(0.1*pi2*x) +np.random.randint(10)*np.cos(1.*pi2*x) +  np.random.rand(1)*np.random.randn(x.size)
         inx = "val" + str(i)
         valDic[inx] = value    
@@ -43,18 +45,20 @@ def make_data(freq,periods, ncol=1):
     
     return df
 
-
-
-def make_anomaly(df, periods, num, direction, trg_col=[]):
-    start = np.random.randint(periods)
-    end = start + num
+def make_anomaly(df):
+    start = np.random.randint(args.prd)
+    end = start + args.amN
     #print df.iloc[start], df.iloc[end]    
 
-    if trg_col == []:trg_col = df.columns
-    for i in trg_col:
-        if direction == "pos":
+    if args.trg_col == "":
+        trg_cols = df.columns
+    else:
+        trg_cols = args.trg_cols.split("")
+    
+    for i in trg_cols:
+        if args.amD == "pos":
             df[i].iloc[start:end] = float(df[i].max()) * 10
-        elif direction == "neg":
+        elif args.amD == "neg":
             if float(df[i].min()) < 0:
                 df[i].iloc[start:end] = float(df[i].min()) * 10
             else:
@@ -103,10 +107,10 @@ if __name__ == "__main__":
     if args.in_csv:
         df = file_reader(args.in_csv)
     
-    df=make_data("5t",288, 5)
+    df=make_data()
     
     if args.anom:    
-        df = make_anomaly(df, 288, 3, "pos")
+        df = make_anomaly(df)
 
     if args.out_csv:
         file_writer(df)
