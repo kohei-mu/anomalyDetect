@@ -17,11 +17,11 @@ def parse_command_line():
     
     group1.add_argument("-freq", dest="freq", default="5T", type=str, help="time frequency of data")
     group1.add_argument("-periods", dest="prd", default=288, type=int, help="periods of data(data points)")
-    group1.add_argument("-ncol", dest="ncol", default=1, type=int, help="number of columns")
+    group1.add_argument("-ncol", dest="ncol", default=5, type=int, help="number of columns")
     group1.add_argument("-anom", dest="anom", type=bool,default=False, help="make anomaly flag")
     group1.add_argument("-anomaNum", dest="amN", default=10, type=int, help="anomaly points")
     group1.add_argument("-anomaDirect", dest="amD", choices=["pos","neg"], default="pos", type=str, help="anomaly direction")
-    group1.add_argument("-trg_cols", dest="trg_cols", default="", type=str, help="anomaly target cols seperated " "##col1 col2 col3 ....")
+    group1.add_argument("-trg_cols", dest="trg_cols", default="val0 val2", type=str, help="anomaly target cols seperated " "##col1 col2 col3 ....")
     group1.add_argument("-in", dest="in_csv", type=str, help="input csv")
     group1.add_argument("-out", dest="out_csv", type=str, help="output csv")
     
@@ -31,7 +31,7 @@ def parse_command_line():
     return parser.parse_args()
 
 
-def make_data(freq,periods):
+def make_data():
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     idx=pd.date_range(now,freq=args.freq,periods=args.prd)
     x = np.linspace(0, 100, num=args.prd)
@@ -50,10 +50,10 @@ def make_anomaly(df):
     end = start + args.amN
     #print df.iloc[start], df.iloc[end]    
 
-    if args.trg_col == "":
+    if args.trg_cols == "":
         trg_cols = df.columns
     else:
-        trg_cols = args.trg_cols.split("")
+        trg_cols = args.trg_cols.split(" ")
     
     for i in trg_cols:
         if args.amD == "pos":
