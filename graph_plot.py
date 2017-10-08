@@ -51,27 +51,30 @@ def file_reader(csv):
         df = missing_value(df)
     return df
 
-def plot_fig(df):    
-    fig=sns.PairGrid(df, diag_sharey=False)
-    plt.subplots_adjust(top=0.9)
-    fig.fig.suptitle("Distribution")
-    fig.map_lower(sns.kdeplot, cmap="Blues_d")
-    fig.map_upper(plt.scatter)
-    fig.map_diag(sns.distplot)
-    if args.save:fig.savefig("pairplot.png")
+def plot_fig(df):
+    if len(df.columns) > 1:
+        fig=sns.PairGrid(df, diag_sharey=False)
+        plt.subplots_adjust(top=0.9)
+        fig.fig.suptitle("Distribution")
+        fig.map_lower(sns.kdeplot, cmap="Blues_d")
+        fig.map_upper(plt.scatter)
+        fig.map_diag(sns.distplot)
+        if args.save:fig.savefig("pairplot.png")
 
     #plot kde joitplot
-    fig = plt.figure()
-    g=sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df)
-    plt.subplots_adjust(top=0.9)
-    g.fig.suptitle("Kernel Distribution Estimation")
-    if args.save: fig.savefig("joint_kde_plot.png")
+    if len(df.columns) > 1:
+        fig = plt.figure()
+        g=sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df)
+        plt.subplots_adjust(top=0.9)
+        g.fig.suptitle("Kernel Distribution Estimation")
+        if args.save: fig.savefig("joint_kde_plot.png")
 
     #plot correlation matrix
-    fig = plt.figure()
-    fig.suptitle("Correlation Matrix")
-    sns.heatmap(df.corr().as_matrix(), annot=True,cmap='Blues')
-    if args.save: fig.savefig("corr_matrix_plot.png")
+    if len(df.columns) > 1:
+        fig = plt.figure()
+        fig.suptitle("Correlation Matrix")
+        sns.heatmap(df.corr().as_matrix(), annot=True,cmap='Blues')
+        if args.save: fig.savefig("corr_matrix_plot.png")
         
     #calculate acf, pcf
     acf, pcf = calc_pacf(df)

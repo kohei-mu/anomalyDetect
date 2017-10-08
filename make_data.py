@@ -17,7 +17,7 @@ def parse_command_line():
     
     group1.add_argument("-freq", dest="freq", default="5T", type=str, help="time frequency of data")
     group1.add_argument("-periods", dest="prd", default=288, type=int, help="periods of data(data points)")
-    group1.add_argument("-ncol", dest="ncol", default=5, type=int, help="number of columns")
+    group1.add_argument("-ncol", dest="ncol", default=2, type=int, help="number of columns")
     group1.add_argument("-anom", dest="anom", type=bool,default=False, help="make anomaly flag")
     group1.add_argument("-anomaNum", dest="amN", default=10, type=int, help="anomaly points")
     group1.add_argument("-anomaDirect", dest="amD", choices=["pos","neg"], default="pos", type=str, help="anomaly direction")
