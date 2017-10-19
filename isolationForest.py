@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import IsolationForest
 import time
+import seaborn as sns
 
 rng = np.random.RandomState(42)
 data = load_iris()
@@ -62,3 +63,31 @@ for param in [0.001,  0.005, 0.1,  0.5]:
     print("average tn : " + str(np.mean(tn_list)))
     print ("elapsed_time : {0}".format(elapsed_time) + "[sec]")
     print("\n")
+    
+    
+
+#######################
+
+for p in [0.5, 0.1,0.001,0.0001]:
+    clf = IsolationForest(max_features=1.0,
+                              bootstrap=False,
+                              contamination=p,
+                              n_estimators=100,
+                              max_samples='auto',
+                              random_state=None,
+                              verbose=0)
+    clf.fit(x_train)
+    train_score = clf.decision_function(x_train)
+    y_pred_train = clf.predict(x_train)
+    
+    
+#    fig = plt.figure()
+#    plt.plot(x_train)
+#    fig = plt.figure()
+#    plt.plot(train_score)
+    fig = plt.figure()
+    sns.distplot(train_score)
+
+
+
+
