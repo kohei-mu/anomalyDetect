@@ -80,3 +80,54 @@ def f(params):
 ratios = [f(i) for i in params]
 result = [[params[i], ratios[i]] for i in range(0,100)]   
 resultSorted = sorted(result, key=lambda x: x[0][0])
+
+
+
+#______________________________________________________________
+#optimize by maximizing accuracy
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.model_selection import GridSearchCV
+
+
+
+datasets=datasets.load_iris()
+features = datasets.data
+targets = datasets.target
+
+clf = svm.OneClassSVM(max_iter=-1)
+
+params = {
+        'nu': np.arange(0.0005,0.005,0.0001),
+        'kernel':['rbf','linear','poly'],
+        'gamma':np.arange(0.01, 2.0, 0.01),
+        'degree':np.arange(1, 3, 1),
+        'coef0':np.arange(0.0, 2.0, 0.5)
+    }
+
+g = GridSearchCV(
+    clf, 
+    params,
+    cv=3, 
+    scoring='accuracy',
+    n_jobs=10,
+    refit=True)
+g.fit(features, targets)
+
+print(g.best_params_)
+print(g.best_score_)
+
+score = g.decision_function(features)
+
+fig = plt.figure()
+plt.plot(features,label="raw data")
+plt.legend()
+
+fig = plt.figure()
+plt.plot(score,label="best score")
+plt.legend()
+
+
+
