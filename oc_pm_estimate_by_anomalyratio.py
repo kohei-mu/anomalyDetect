@@ -12,7 +12,7 @@ from sklearn import svm
 from skopt import gp_minimize
 from skopt.plots import plot_convergence
 
-df = pd.read_csv("C:/Users/kohei-mu/Documents/indices_I101.csv").iloc[:,1:]
+df = pd.read_csv("indices_I101.csv").iloc[:,1:]
 tmp =  np.array(df).reshape(-4 , 4) #sk-learnの入力はnumpy.arrayのため変換
 #2メトリクスの場合→tmp =  np.array(df).reshape(-2 , 2)
 #3メトリクスの場合→tmp =  np.array(df).reshape(-3 , 3)
