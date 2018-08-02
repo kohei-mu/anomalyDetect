@@ -244,4 +244,5 @@ def calc_fft(df):
 
 df=make_data("5t",288, 2)
 df = make_anomaly(df, 288, 3, "pos")
-plot_fig(df,"true")
+plot_fig(df,"false")
+
