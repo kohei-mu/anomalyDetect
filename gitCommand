@@ -1,4 +1,0 @@
-git status
-git add changeFinderParamEstimate.py
-git commit -m "modified"
-git push origin master
