@@ -1,25 +1,25 @@
 library(psych)
 library(minerva)
 
-#’Êí”gŒ`‚Ì‘ŠŠÖ
-path <-  "C:/Users/muramatsu/Documents/data/hirata/poc/processed/csv/imp/"
+#ï¿½Êï¿½gï¿½`ï¿½Ì‘ï¿½ï¿½ï¿½
+path <-  "/imp/"
 setwd(path)
 files <- list.files(path, pattern=".csv")
 for (file in files){
   file_path <- paste(path, file, sep="")
   df <- read.csv(file_path, header=TRUE)
   
-  #ƒsƒAƒ\ƒ“‚Ì‘ŠŠÖŒW”i’P’²j
+  #ï¿½sï¿½Aï¿½\ï¿½ï¿½ï¿½Ì‘ï¿½ï¿½ÖŒWï¿½ï¿½ï¿½iï¿½Pï¿½ï¿½ï¿½j
   #pearson <- cor(df,method="pearson")
   #graph_pearson <- paste(strsplit(file, "_imp.csv"), "_pearson", sep="")
   #cor.plot(pearson, numbers = T,main=graph_pearson, xlas=2,cex.axis=0.75, cex=0.5)
   
-  #ƒXƒsƒAƒ}ƒ“‚Ì‘ŠŠÖŒW”i“¯’²j
+  #ï¿½Xï¿½sï¿½Aï¿½}ï¿½ï¿½ï¿½Ì‘ï¿½ï¿½ÖŒWï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½j
   spearman <- cor(df,method="spearman")
   graph_spearman <- paste(strsplit(file, "_imp.csv"), "_spearman", sep="")
   cor.plot(spearman, numbers = T,main=graph_spearman,xlas=2,cex.axis=0.75, cex=0.5)
   
-  #MIC(”ñüŒ`)
+  #MIC(ï¿½ï¿½ï¿½ï¿½`)
   #mic <- mine(df)$MIC
   #graph_mic <- paste(strsplit(file, "_imp.csv"), "_mic", sep="")
   #cor.plot(mic, numbers = T,main=graph_mic, xlas=2,cex.axis=0.75, cex=0.5)
@@ -29,25 +29,25 @@ for (file in files){
 ###################
 
 
-#FFT‚ğŠ|‚¯‚½‚ ‚Æ‚Ì‘ŠŠÖ
-path <-  "C:/Users/muramatsu/Documents/data/hirata/poc/processed/csv/imp/fft/"
+#FFTï¿½ï¿½|ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚Ì‘ï¿½ï¿½ï¿½
+path <-  "/fft/"
 setwd(path)
 files <- list.files(path, pattern=".csv")
 for (file in files){
   file_path <- paste(path, file, sep="")
   df <- read.csv(file_path, header=TRUE)
   
-  #ƒsƒAƒ\ƒ“‚Ì‘ŠŠÖŒW”i’P’²j
+  #ï¿½sï¿½Aï¿½\ï¿½ï¿½ï¿½Ì‘ï¿½ï¿½ÖŒWï¿½ï¿½ï¿½iï¿½Pï¿½ï¿½ï¿½j
   #pearson <- cor(df,method="pearson")
   #graph_pearson <- paste(strsplit(file, "_imp_fft.csv"), "_fft_pearson", sep="")
   #cor.plot(pearson, numbers = T,main=graph_pearson, xlas=2,cex.axis=0.75, cex=0.5)
   
-  #ƒXƒsƒAƒ}ƒ“‚Ì‘ŠŠÖŒW”i“¯’²j
+  #ï¿½Xï¿½sï¿½Aï¿½}ï¿½ï¿½ï¿½Ì‘ï¿½ï¿½ÖŒWï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½j
   spearman <- cor(df,method="spearman")
   graph_spearman <- paste(strsplit(file, "_imp_fft.csv"), "_fft_spearman", sep="")
   cor.plot(spearman, numbers = T,main=graph_spearman,xlas=2,cex.axis=0.75, cex=0.5)
   
-  #MIC(”ñüŒ`)
+  #MIC(ï¿½ï¿½ï¿½ï¿½`)
   #mic <- mine(df)$MIC
   #graph_mic <- paste(strsplit(file, "_imp_fft.csv"), "_fft_mic", sep="")
   #cor.plot(mic, numbers = T,main=graph_mic, xlas=2,cex.axis=0.75, cex=0.5)

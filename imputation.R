@@ -1,40 +1,40 @@
 library(mice)
 
-path <- "C:/Users/muramatsu/Documents/data/hirata/poc/processed/csv"
+path <- "/csv"
 setwd(path)
 files <- list.files(path, pattern=".csv")
 
 for ( file in files){
   
-  #“ü—Íƒtƒ@ƒCƒ‹–¼
+  #ï¿½ï¿½ï¿½Íƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½
   file_path <- paste(path, file, sep="")
   df <- read.csv(file_path, header=TRUE)
   
-  #Œ‡‘¹’lŠm”F
+  #ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½mï¿½F
   #md.pattern(df)
   
-  #•âŠ®ƒAƒ‹ƒSƒŠƒYƒ€Šm”F
+  #ï¿½âŠ®ï¿½Aï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½mï¿½F
   #methods(mice)
-  #•âŠ®ŽÀs
+  #ï¿½âŠ®ï¿½ï¿½ï¿½s
   tempData <- mice(df,
                    m=5, 
                    maxit=20,
                    meth='pmm', 
                    seed=500)
   
-  #•âŠ®Œó•âŠm”F
+  #ï¿½âŠ®ï¿½ï¿½ï¿½mï¿½F
   #tempData$imp
-  #•âŠ®ƒf[ƒ^‚ÆŒ³ƒf[ƒ^‚Ì•ª•z‚ª‘å‚«‚­•Ï‰»‚µ‚Ä‚¢‚È‚¢‚±‚Æ‚ðŠm”F
+  #ï¿½âŠ®ï¿½fï¿½[ï¿½^ï¿½ÆŒï¿½ï¿½fï¿½[ï¿½^ï¿½Ì•ï¿½ï¿½zï¿½ï¿½ï¿½å‚«ï¿½ï¿½ï¿½Ï‰ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½mï¿½F
   #densityplot(tempData)
   
-  #•âŠ®ƒf[ƒ^Œˆ’è
+  #ï¿½âŠ®ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ï¿½
   completedData <- complete(tempData,3)
   #md.pattern(completedData)
   
-  #o—Íƒtƒ@ƒCƒ‹–¼
+  #ï¿½oï¿½Íƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½
   out_file_tmp <- paste(strsplit(file, ".csv"), "_imp.csv", sep="")
   out_file <- paste(paste(path,'imp/',sep=""), out_file_tmp, sep="")
-  #•âŠ®Ï‚Ýƒf[ƒ^‚ðo—Í
+  #ï¿½âŠ®ï¿½Ï‚Ýƒfï¿½[ï¿½^ï¿½ï¿½oï¿½ï¿½
   write.csv(completedData, out_file, quote=FALSE, row.names=FALSE)
 
 }
