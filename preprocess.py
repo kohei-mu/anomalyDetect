@@ -18,7 +18,7 @@ from scipy.fftpack import fft
 from scipy.signal import blackman
 import statsmodels.tsa.stattools as stt
 
-
+#### argparse options ####
 parser = argparse.ArgumentParser(description="help messages")
 group1 = parser.add_argument_group('Main options')
 group2 = parser.add_argument_group('additional options')
@@ -37,11 +37,12 @@ group2.add_argument("-input_header",dest="inH", type=int, default=0, choices=[0,
 group2.add_argument("-crosstab",dest="cross", type=bool, default=False, choices=[True, False], help="calculate crosstab")
 group2.add_argument("-i_conv",dest="i_convert", type=bool, default=False, choices=[True, False], help="conert timestamp index(yyyy-mm-dd'T'hh:MM:DD+09:00)")
 args=parser.parse_args()
+########
 
-    
+#make demo data
 def make_data(freq,periods, ncol=1):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    idx=pd.date_range(now,freq=freq,periods=periods)
+    idx = pd.date_range(now,freq=freq,periods=periods)
     x = np.linspace(0, 100, num=periods)
     pi2 = 2.*np.pi    
     valDic = {}
@@ -49,14 +50,13 @@ def make_data(freq,periods, ncol=1):
         value = np.random.randint(10)*np.sin(0.1*pi2*x) +np.random.randint(10)*np.cos(1.*pi2*x) +  np.random.rand(1)*np.random.randn(x.size)
         inx = "val" + str(i)
         valDic[inx] = value    
-    df=pd.DataFrame(valDic,index=idx)
+    df = pd.DataFrame(valDic,index=idx)
     
     return df
 
 def make_anomaly(df, periods, num, direction, trg_col=[]):
     start = np.random.randint(periods)
     end = start + num
-    #print df.iloc[start], df.iloc[end]    
 
     if trg_col == []:trg_col = df.columns
     for i in trg_col:
@@ -68,8 +68,6 @@ def make_anomaly(df, periods, num, direction, trg_col=[]):
             else:
                 df[i].iloc[start:end] = float(df[i].min()) / 10
     return df
-#df = make_anomaly(df, 288, 20, "neg")
-#plot_func(df)
     
 def resample_time(df, freq, how="mean"):
     if how == "last":
@@ -88,44 +86,37 @@ def resample_time(df, freq, how="mean"):
         df = df.resample(freq).mean()
 
     return df
-#df=resample_time(df,"10T","mean")
-#plot_func(df)
 
 def missing_value(df, how="interpolate"):
-    #indexer=np.random.randint(4,size=30)==1
-    #df.loc[indexer]=np.nan
-    if how == "interpolate":
-        df=df.interpolate()
-    elif how == "drop":
-        df=df.dropna()
+    if how == "interpolate": #fill na by using linear interpolate
+        df = df.interpolate()
+    elif how == "drop": #drop na
+        df = df.dropna()
     else:
-        df=df.fillna(df.mean())
-        #bfill : backward
-        #ffill : forward
+        df = df.fillna(df.mean()) #fill na with mean value
     return df
-#df = missing_value(df,"interpolate")
 
-#get lags
 def slide_window(df, num):
     return df.shift(num)
 
 def file_reader(csv, header=0):
-    df=pd.read_csv(csv,header=header)
-    if df.isnull().any().sum() > 0:
+    df = pd.read_csv(csv,header=header)
+    if df.isnull().any().sum() > 0:#if na is in the df
         df = missing_value(df)
     return df
-    
+
 def file_writer(df, out_name, i_convert=False):
     if i_convert:df = index_convert(df)
     df.to_csv(out_name,index_label=["TimeStamp"])
 
+#convert timestamp format into yyyy/mm/ddTHH:mm:ss
 def index_convert(df):
     index = df.index
-    k=[]
+    converted_index = []
     for i in index:
         j = "T".join(str(i).split(" ")) + "+09:00"
-        k.append(j)
-    df.index = k
+        converted_index.append(j)
+    df.index = converted_index
     return df
 
 
@@ -136,11 +127,11 @@ def plot_fig(df, save=False):
     fig.map_lower(sns.kdeplot, cmap="Blues_d")
     fig.map_upper(plt.scatter)
     fig.map_diag(sns.distplot)
-    if save==True:fig.savefig("pairplot.png")
+    if save == True: fig.savefig("pairplot.png")
 
     #plot kde joitplot
     fig = plt.figure()
-    g=sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df)
+    g =sns.jointplot(x=df.columns.values[0] ,y=df.columns.values[1] ,kind="kde", data=df)
     plt.subplots_adjust(top=0.9)
     g.fig.suptitle("Kernel Distribution Estimation")
     if save == True: fig.savefig("joint_kde_plot.png")
@@ -156,44 +147,44 @@ def plot_fig(df, save=False):
         #plot distribution
         fig = plt.figure()
         sns.distplot(df.iloc[:,i])
-        plt.title("Histgram - "+df.columns[i])
-        if save==True:fig.savefig("dist_plot_"+df.columns[i]+".png")
+        plt.title("Histgram - " + df.columns[i])
+        if save == True: fig.savefig("dist_plot_" + df.columns[i] + ".png")
 
         #plot series
         fig = plt.figure()
         df.iloc[:,i].plot()
         #plot moving average
         ma[i].plot(c='r')
-        plt.title("Row data & Moving average - "+df.columns[i])
-        if save==True:fig.savefig("series_plot_"+df.columns[i]+".png")
+        plt.title("Row data & Moving average - " + df.columns[i])
+        if save == True: fig.savefig("series_plot_" + df.columns[i] + ".png")
 
 
         #plot acf
         fig = plt.figure()
         plt.bar(range(len(acf[i])), acf[i], width = 0.3)
-        plt.title("Auto Correlation Function - "+df.columns[i])
-        if save==True:fig.savefig("acf_plot_"+df.columns[i]+".png")
+        plt.title("Auto Correlation Function - " + df.columns[i])
+        if save == True: fig.savefig("acf_plot_" + df.columns[i]+".png")
 
         #plot pcf
         fig = plt.figure()
         plt.bar(range(len(pcf[i])), pcf[i], width = 0.3)
-        plt.title("Partial Auto Correlation Function - "+df.columns[i])
-        if save==True:fig.savefig("pcf_plot_"+df.columns[i]+".png")
+        plt.title("Partial Auto Correlation Function - " + df.columns[i])
+        if save == True: fig.savefig("pcf_plot_" + df.columns[i] + ".png")
         
         #plot fft
         fig = plt.figure()
         f = calc_fft(df.iloc[:,i])
         plt.plot(f[1], f[0])
-        plt.title("Fast Fourier Transform - "+df.columns[i])
-        if save==True:fig.savefig("fft_plot_"+df.columns[i]+".png")
+        plt.title("Fast Fourier Transform - " + df.columns[i])
+        if save == True: fig.savefig("fft_plot_" + df.columns[i] + ".png")
         
         #plot return value_i - value_i2
         fig = plt.figure()
         ret[i].plot()
-        plt.title("Return - "+df.columns[i])
-        if save==True:fig.savefig("return_plot_"+df.columns[i]+".png")
+        plt.title("Return - " + df.columns[i])
+        if save == True: fig.savefig("return_plot_" + df.columns[i] + ".png")
         
-
+# get diff
 def calc_return(df):
     rets = []
     for i in  range(len(df.columns)):
@@ -202,6 +193,7 @@ def calc_return(df):
     
     return rets
 
+# get acf and partial acf
 def calc_pacf(df):
     acfs = []
     pcfs = []
@@ -214,6 +206,7 @@ def calc_pacf(df):
     
     return acfs, pcfs
 
+# get moving average
 def calc_ma(df):
     mas = []
     for i in range(len(df.columns)):
@@ -222,18 +215,16 @@ def calc_ma(df):
     return mas
 
 def data_understand(df, cross=False, r="row", c="col"):
-    print df.describe()
-    
+    print(df.describe())
     if cross == True:
         crosstab = pd.pivot_table(df,values,index, columns,aggfunc=[np.sum])        
-        print crosstab
+        print(crosstab)
 
 def calc_fft(df):
     # Number of sample points
     N = len(df)
     # sample spacing
     T = 1.0 / N * 1.5
-   # x = np.linspace(0.0, N*T, N)
    ##window function
     w = blackman(N)
     y = df
@@ -241,8 +232,8 @@ def calc_fft(df):
     xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
     return yf, xf
 
-
-df=make_data("5t",288, 2)
-df = make_anomaly(df, 288, 3, "pos")
-plot_fig(df,"false")
+if __name__ == "__main__":
+    df = make_data("5t",288, 2)
+    df = make_anomaly(df, 288, 3, "pos")
+    plot_fig(df,"false")
 
